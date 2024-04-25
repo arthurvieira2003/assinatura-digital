@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login/Cadastro</title>
+    <link rel="stylesheet" href="./css/index.css" />
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <form id="loginForm">
+        <h2>Login</h2>
+        <input type="text" id="loginNickname" placeholder="Nickname" required />
+        <input type="password" id="loginSenha" placeholder="Senha" required />
+        <button type="submit" id="loginButton">Entrar</button>
+        <p id="loginMessage"></p>
+      </form>
+      <form id="registerForm">
+        <h2>Cadastro</h2>
+        <input type="text" id="registerEmail" placeholder="Email" required />
+        <input
+          type="text"
+          id="registerNickname"
+          placeholder="Nickname"
+          required
+        />
+        <input
+          type="password"
+          id="registerSenha"
+          placeholder="Senha"
+          required
+        />
+        <select id="registerTipoacesso" class="form-control" required>
+          <option value="" disabled selected>Selecione o Cargo</option>
+        </select>
+        <button type="submit" id="registerButton">Cadastrar</button>
+        <p id="registerMessage"></p>
+      </form>
+    </div>
+    <script src="./js/index.js"></script>
+  </body>
+</html>
