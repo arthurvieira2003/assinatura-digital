@@ -7,7 +7,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const sequelize = new Sequelize(
-  "postgres://postgres:Pg@123@0.tcp.sa.ngrok.io:12699/assinatura-digital"
+  "postgres://postgres:Pg@123@0.tcp.sa.ngrok.io:15437/assinatura-digital"
 );
 
 const Funcionario = sequelize.define("funcionario", {
@@ -78,4 +78,31 @@ app.get("/users", (req, res) => {
 
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
+});
+
+app.put("/users/:nickname", (req, res) => {
+  const { email, nickname, senha, tipoacesso } = req.body;
+
+  Funcionario.update(
+    { email: email, nickname: nickname, senha: senha, tipoacesso: tipoacesso },
+    { where: { nickname: req.params.nickname } }
+  )
+    .then(() => {
+      res.send({ message: "Usuário atualizado com sucesso!" });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ message: "Erro ao atualizar usuário." });
+    });
+});
+
+app.delete("/users/:id", (req, res) => {
+  Funcionario.destroy({ where: { id: req.params.id } })
+    .then(() => {
+      res.send({ message: "Usuário excluído com sucesso!" });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ message: "Erro ao excluir usuário." });
+    });
 });

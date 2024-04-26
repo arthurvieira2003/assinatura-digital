@@ -4,6 +4,18 @@ $(document).ready(function () {
   tiposAcesso.forEach(function (tipo) {
     select.append(new Option(tipo, tipo));
   });
+
+  $("#showRegisterForm").click(function (e) {
+    e.preventDefault();
+    $("#loginForm").hide();
+    $("#registerForm").show();
+  });
+
+  $("#showLoginForm").click(function (e) {
+    e.preventDefault();
+    $("#registerForm").hide();
+    $("#loginForm").show();
+  });
 });
 
 document.getElementById("registerButton").addEventListener("click", (e) => {

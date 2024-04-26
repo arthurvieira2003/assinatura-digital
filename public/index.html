@@ -9,6 +9,11 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <style>
+      #registerForm {
+        display: none;
+      }
+    </style>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   </head>
   <body>
@@ -19,6 +24,7 @@
         <input type="password" id="loginSenha" placeholder="Senha" required />
         <button type="submit" id="loginButton">Entrar</button>
         <p id="loginMessage"></p>
+        <a href="#" id="showRegisterForm">Cadastre-se</a>
       </form>
       <form id="registerForm">
         <h2>Cadastro</h2>
@@ -40,6 +46,7 @@
         </select>
         <button type="submit" id="registerButton">Cadastrar</button>
         <p id="registerMessage"></p>
+        <a href="#" id="showLoginForm">Voltar ao login</a>
       </form>
     </div>
     <script src="./js/index.js"></script>
