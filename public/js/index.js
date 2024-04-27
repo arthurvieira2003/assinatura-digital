@@ -61,7 +61,7 @@ document.getElementById("loginButton").addEventListener("click", (e) => {
     .then((data) => {
       document.getElementById("loginMessage").textContent = data.message;
       if (data.user) {
-        window.location.href = "../public/pages/dashboard.html";
+        window.location.href = "/pages/dashboard.html";
       }
       dashboard;
     });

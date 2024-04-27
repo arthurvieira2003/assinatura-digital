@@ -3,11 +3,12 @@ const bodyParser = require("body-parser");
 const Sequelize = require("sequelize");
 const cors = require("cors");
 const app = express();
+const path = require("path");
 app.use(cors());
 app.use(bodyParser.json());
 
 const sequelize = new Sequelize(
-  "postgres://postgres:Pg@123@0.tcp.sa.ngrok.io:15437/assinatura-digital"
+  "postgres://postgres:Pg@123@0.tcp.sa.ngrok.io:19728/assinatura-digital"
 );
 
 const Funcionario = sequelize.define("funcionario", {
@@ -16,6 +17,9 @@ const Funcionario = sequelize.define("funcionario", {
   senha: Sequelize.STRING,
   tipoacesso: Sequelize.STRING,
 });
+
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public/pages")));
 
 app.post("/register", (req, res) => {
   const { email, nickname, senha, tipoacesso } = req.body;
@@ -65,7 +69,7 @@ app.post("/login", (req, res) => {
 
 app.get("/users", (req, res) => {
   Funcionario.findAll({
-    attributes: ["email", "nickname", "tipoacesso"],
+    attributes: ["id", "email", "nickname", "tipoacesso"],
   })
     .then((users) => {
       res.send(users);
@@ -81,11 +85,16 @@ app.listen(3000, () => {
 });
 
 app.put("/users/:nickname", (req, res) => {
-  const { email, nickname, senha, tipoacesso } = req.body;
+  const { userId, email, nickname, tipoacesso } = req.body;
 
   Funcionario.update(
-    { email: email, nickname: nickname, senha: senha, tipoacesso: tipoacesso },
-    { where: { nickname: req.params.nickname } }
+    {
+      email: email,
+      nickname: nickname,
+      tipoacesso: tipoacesso,
+      updatedAt: new Date(),
+    },
+    { where: { id: userId } }
   )
     .then(() => {
       res.send({ message: "Usuário atualizado com sucesso!" });

@@ -25,6 +25,7 @@ $(document).ready(function () {
           inputs.attr("disabled", "disabled");
           updateButton.text("Alterar");
 
+          var userId = user.id;
           var email = inputs[0].value;
           var nickname = inputs[1].value;
           var tipoacesso = inputs[2].value;
@@ -33,6 +34,7 @@ $(document).ready(function () {
             url: "http://localhost:3000/users/" + nickname,
             method: "PUT",
             data: JSON.stringify({
+              userId: userId,
               email: email,
               nickname: nickname,
               tipoacesso: tipoacesso,
