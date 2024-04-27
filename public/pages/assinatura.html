@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Assinatura Digital</title>
@@ -10,7 +12,9 @@
     <h1>Assinatura Digital</h1>
     <input type="file" id="fileInput" />
     <button onclick="handleFile()">Converter e Encriptar</button>
+    <button onclick="handleDecryption()">Descriptografar</button>
     <p id="result"></p>
+
     <script src="../js/assinatura.js"></script>
   </body>
 </html>

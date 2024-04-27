@@ -4,12 +4,18 @@ const Sequelize = require("sequelize");
 const cors = require("cors");
 const app = express();
 const path = require("path");
+const database = require("./database/db");
+const tables = require("./database/tables");
 app.use(cors());
 app.use(bodyParser.json());
 
 const sequelize = new Sequelize(
   "postgres://postgres:Pg@123@0.tcp.sa.ngrok.io:19728/assinatura-digital"
 );
+
+(async () => {
+  await database.sync();
+})();
 
 const Funcionario = sequelize.define("funcionario", {
   email: Sequelize.STRING,
