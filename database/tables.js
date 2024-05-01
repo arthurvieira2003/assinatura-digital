@@ -1,7 +1,8 @@
 const Sequelize = require("sequelize");
 const database = require("./db");
 
-const Funcionarios = database.define("funcionarios", {
+// Definir modelo Funcionario usando Sequelize
+const Funcionario = database.define("funcionario", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -26,7 +27,8 @@ const Funcionarios = database.define("funcionarios", {
   },
 });
 
-const Relatorios = database.define("relatorios", {
+// Definir modelo Relatorio usando Sequelize
+const Relatorio = database.define("relatorio", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -63,7 +65,8 @@ const Relatorios = database.define("relatorios", {
   },
 });
 
-const Assinaturas = database.define("assinaturas", {
+// Definir modelo Assinatura usando Sequelize
+const Assinatura = database.define("assinatura", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -96,21 +99,18 @@ const Assinaturas = database.define("assinaturas", {
   },
 });
 
-Relatorios.belongsTo(Funcionarios, { foreignKey: "funcionario_id" });
-Assinaturas.belongsTo(Relatorios, { foreignKey: "relatorio_id" });
-Assinaturas.belongsTo(Relatorios, { foreignKey: "funcionario_id" });
+// Definir os relacionamentos entre os modelos
+Funcionario.hasMany(Relatorio, { foreignKey: "funcionario_id" });
+Relatorio.belongsTo(Funcionario, { foreignKey: "funcionario_id" });
 
-Funcionarios.hasMany(Relatorios, { foreignKey: "funcionario_id" });
-Relatorios.hasMany(Assinaturas, { foreignKey: "relatorio_id" });
-Relatorios.hasMany(Assinaturas, { foreignKey: "funcionario_id" });
+Relatorio.hasMany(Assinatura, { foreignKey: "relatorio_id" });
+Assinatura.belongsTo(Relatorio, { foreignKey: "relatorio_id" });
 
-Funcionarios.sync()
-  .then(() => {
-    Relatorios.sync();
-  })
-  .then(() => {
-    Assinaturas.sync();
-  })
-  .catch((error) => {
-    console.error("An error occurred while creating tables:", error);
-  });
+Funcionario.hasMany(Assinatura, { foreignKey: "funcionario_id" });
+Assinatura.belongsTo(Funcionario, { foreignKey: "funcionario_id" });
+
+module.exports = {
+  Funcionario,
+  Relatorio,
+  Assinatura,
+};

@@ -1,55 +1,144 @@
-// scripts.js
-function handleFile() {
-  const fileInput = document.getElementById("fileInput");
-  const file = fileInput.files[0];
+document.addEventListener("DOMContentLoaded", () => {
+  const documentoForm = document.getElementById("documentoForm");
+  const documentosTable = document.getElementById("documentosTable");
 
-  if (file) {
+  // Carregar destinatários no formulário
+  fetch("/destinatarios")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Erro ao carregar destinatários");
+      }
+      return response.json();
+    })
+    .then((destinatarios) => {
+      const destinatarioSelect = documentoForm.querySelector(
+        'select[name="destinatario"]'
+      );
+
+      // Limpar opções existentes
+      destinatarioSelect.innerHTML = "";
+
+      destinatarios.forEach((destinatario) => {
+        const option = document.createElement("option");
+        option.value = destinatario.id;
+        option.textContent = destinatario.nickname;
+        destinatarioSelect.appendChild(option);
+      });
+    })
+    .catch((error) => {
+      console.error("Erro ao carregar destinatários:", error);
+    });
+
+  // Enviar documento para assinatura
+  documentoForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const arquivoInput = document.querySelector('input[type="file"]');
+    const arquivo = arquivoInput.files[0];
+
+    // Ler o conteúdo do arquivo PDF como base64
     const reader = new FileReader();
-    reader.onload = function (event) {
-      const base64Data = event.target.result.split(",")[1];
-      const encryptedData = encryptData(base64Data, "meu-cu");
-      document.getElementById("result").textContent = encryptedData;
+    reader.onload = async (event) => {
+      const arquivo_pdf = event.target.result;
+
+      const descricao = document.getElementById("descricao").value;
+      const valor = document.getElementById("valor").value;
+      const data = document.getElementById("data").value;
+      const funcionario_id = document.getElementById("destinatario").value;
+
+      try {
+        const response = await fetch("http://localhost:3000/enviar-documento", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            descricao: descricao,
+            valor: valor,
+            data: data,
+            funcionario_id: funcionario_id,
+            arquivo_pdf: arquivo_pdf,
+          }),
+        });
+        if (!response.ok) {
+          throw new Error("Erro ao enviar documento");
+        }
+        const newDocumento = await response.json();
+
+        // Adicionar nova linha na tabela com os dados do novo documento
+        const newRow = documentosTable.insertRow();
+        newRow.innerHTML = `
+          <td>${newDocumento.descricao}</td>
+          <td>${newDocumento.destinatario}</td>
+          <td>${newDocumento.status}</td>
+        `;
+      } catch (error) {
+        console.error("Erro ao enviar documento:", error);
+      }
     };
-    reader.readAsDataURL(file);
-  }
-}
 
-function encryptData(data, key) {
-  return CryptoJS.AES.encrypt(data, key).toString();
-}
+    // Ler o arquivo PDF selecionado como base64
+    if (arquivo) {
+      reader.readAsDataURL(arquivo);
+    }
+  });
 
-function handleDecryption() {
-  const encryptedData = document.getElementById("result").textContent;
-  const secretKey = "meu-cu";
+  // Carregar documentos na tabela
+  fetch("http://localhost:3000/documentos")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Erro ao carregar documentos");
+      }
+      return response.json();
+    })
+    .then((documentos) => {
+      documentos.forEach((documento) => {
+        const row = documentosTable.insertRow();
+        row.innerHTML = `
+          <td>${documento.descricao}</td>
+          <td>${documento.valor}</td>
+          <td>${documento.status}</td>
+        `;
 
-  try {
-    const decryptedText = decryptData(encryptedData, secretKey);
-    console.log("Dados descriptografados:", decryptedText);
+        const buttonCell = row.insertCell();
+        const assinarButton = document.createElement("button");
+        assinarButton.textContent = "Assinar Documento";
 
-    const decodedData = atob(decryptedText);
+        // Adicionar evento de clique ao botão
+        assinarButton.addEventListener("click", () => {
+          // Lógica para assinar o documento aqui
+          console.log(`Assinar documento ID: ${documento.id}`);
+          // Aqui você pode chamar uma função para assinar o documento, por exemplo
+        });
 
-    const docDefinition = {
-      content: [
-        { text: "Assinatura Digital Descriptografada", style: "header" },
-        { text: decodedData, margin: [0, 10] },
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10],
-        },
-      },
-    };
+        // Adicionar o botão à célula da tabela
+        buttonCell.appendChild(assinarButton);
+      });
+    })
+    .catch((error) => {
+      console.error("Erro ao carregar documentos:", error);
+    });
+});
 
-    pdfMake.createPdf(docDefinition).open();
-  } catch (error) {
-    console.error("Erro ao descriptografar:", error.message);
-  }
-}
-
-function decryptData(data, key) {
-  const decryptedBytes = CryptoJS.AES.decrypt(data, key);
-  const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
-  return decryptedText;
+function assinarDocumento(idDocumento) {
+  fetch(`http://localhost:3000/documentos/assinar/${idDocumento}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Erro ao assinar documento");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Documento assinado com sucesso:", data);
+      // Aqui você pode atualizar a interface ou fazer outras ações após assinar o documento
+    })
+    .catch((error) => {
+      console.error("Erro ao assinar documento:", error);
+      // Tratar o erro ou exibir uma mensagem de erro ao usuário
+    });
 }

@@ -1,20 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
   <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Assinatura Digital</title>
+    <title>Assinatura Eletrônica</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <h1>Assinatura Digital</h1>
-    <input type="file" id="fileInput" />
-    <button onclick="handleFile()">Converter e Encriptar</button>
-    <button onclick="handleDecryption()">Descriptografar</button>
-    <p id="result"></p>
-
+    <h1>Assinatura Eletrônica</h1>
+    <h2>Enviar Documento</h2>
+    <form id="documentoForm" enctype="multipart/form-data" class="container">
+      <input type="file" name="documento" required />
+      <select id="destinatario" name="destinatario" required></select>
+      <input
+        id="descricao"
+        type="text"
+        name="descricao"
+        placeholder="Descrição"
+        required
+      />
+      <input
+        id="valor"
+        type="number"
+        name="valor"
+        placeholder="Valor"
+        required
+      />
+      <input id="data" type="date" name="data" required />
+      <button type="submit">Enviar</button>
+    </form>
+    <br />
+    <h2>Documentos Enviados para Assinatura</h2>
+    <table id="documentosTable" class="container table table-striped">
+      <thead>
+        <tr>
+          <th>Documento</th>
+          <th>Valor</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="documentosTableBody"></tbody>
+    </table>
     <script src="../js/assinatura.js"></script>
   </body>
 </html>
