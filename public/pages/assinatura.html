@@ -8,6 +8,14 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <style>
+      .btn-top-right {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 999;
+      }
+    </style>
   </head>
   <body>
     <h1>Assinatura Eletrônica</h1>
@@ -40,10 +48,16 @@
           <th>Documento</th>
           <th>Valor</th>
           <th>Status</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="documentosTableBody"></tbody>
     </table>
+    <div class="btn-top-right">
+      <a href="./dashboard.html" class="btn btn-primary">Dashboard</a>
+    </div>
+
+    <!-- Script JavaScript para interação com o backend -->
     <script src="../js/assinatura.js"></script>
   </body>
 </html>

@@ -25,6 +25,10 @@ const Funcionario = database.define("funcionario", {
     type: Sequelize.STRING(100),
     allowNull: false,
   },
+  chaveassinatura: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 // Definir modelo Relatorio usando Sequelize
@@ -65,52 +69,11 @@ const Relatorio = database.define("relatorio", {
   },
 });
 
-// Definir modelo Assinatura usando Sequelize
-const Assinatura = database.define("assinatura", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  relatorio_id: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    references: {
-      model: "relatorios",
-      key: "id",
-    },
-  },
-  funcionario_id: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    references: {
-      model: "funcionarios",
-      key: "id",
-    },
-  },
-  data: {
-    type: Sequelize.DATE,
-    allowNull: false,
-  },
-  assinatura: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-});
-
 // Definir os relacionamentos entre os modelos
 Funcionario.hasMany(Relatorio, { foreignKey: "funcionario_id" });
 Relatorio.belongsTo(Funcionario, { foreignKey: "funcionario_id" });
 
-Relatorio.hasMany(Assinatura, { foreignKey: "relatorio_id" });
-Assinatura.belongsTo(Relatorio, { foreignKey: "relatorio_id" });
-
-Funcionario.hasMany(Assinatura, { foreignKey: "funcionario_id" });
-Assinatura.belongsTo(Funcionario, { foreignKey: "funcionario_id" });
-
 module.exports = {
   Funcionario,
   Relatorio,
-  Assinatura,
 };
