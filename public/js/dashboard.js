@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  $.get("http://localhost:3000/users", function (data) {
+  $.get("https://assinatura-digital-sage.vercel.app/users", function (data) {
     data.forEach(function (user, index) {
       var row = $("<tr></tr>");
       row.append(
@@ -31,7 +31,7 @@ $(document).ready(function () {
           var tipoacesso = inputs[2].value;
 
           $.ajax({
-            url: "http://localhost:3000/users/" + nickname,
+            url: "https://assinatura-digital-sage.vercel.app/users/" + nickname,
             method: "PUT",
             data: JSON.stringify({
               userId: userId,
@@ -50,7 +50,7 @@ $(document).ready(function () {
       var deleteButton = $("<button class='btn btn-danger'>Excluir</button>");
       deleteButton.click(function () {
         $.ajax({
-          url: "http://localhost:3000/users/" + user.id,
+          url: "https://assinatura-digital-sage.vercel.app/users/" + user.id,
           method: "DELETE",
         }).done(function (response) {
           alert(response.message);
