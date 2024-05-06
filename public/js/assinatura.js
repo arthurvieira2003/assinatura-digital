@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const documentosTable = document.getElementById("documentosTable");
 
   // Carregar destinatários no formulário
-  fetch("https://assinatura-digital-sage.vercel.app/destinatarios")
+  fetch("http://localhost:3000/destinatarios")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Erro ao carregar destinatários");
@@ -50,22 +50,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const funcionario_id = document.getElementById("destinatario").value;
 
       try {
-        const response = await fetch(
-          "https://assinatura-digital-sage.vercel.app/enviar-documento",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              descricao: descricao,
-              valor: valor,
-              data: data,
-              funcionario_id: funcionario_id,
-              arquivo_pdf: arquivo_pdf,
-            }),
-          }
-        );
+        const response = await fetch("http://localhost:3000/enviar-documento", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            descricao: descricao,
+            valor: valor,
+            data: data,
+            funcionario_id: funcionario_id,
+            arquivo_pdf: arquivo_pdf,
+          }),
+        });
         if (!response.ok) {
           throw new Error("Erro ao enviar documento");
         }
@@ -103,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Carregar documentos na tabela
-  fetch("https://assinatura-digital-sage.vercel.app/documentos")
+  fetch("http://localhost:3000/documentos")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Erro ao carregar documentos");
@@ -129,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         downloadButton.addEventListener("click", async () => {
           try {
             const response = await fetch(
-              `https://assinatura-digital-sage.vercel.app/documentos/pdf/${documento.id}`
+              `http://localhost:3000/documentos/pdf/${documento.id}`
             );
             if (!response.ok) {
               throw new Error("Erro ao baixar PDF");
@@ -161,15 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Adicionar evento de clique ao botão
           assinarButton.addEventListener("click", () => {
-            fetch(
-              `https://assinatura-digital-sage.vercel.app/documentos/assinar/${documento.id}`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            )
+            fetch(`http://localhost:3000/documentos/assinar/${documento.id}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
               .then((response) => {
                 if (!response.ok) {
                   throw new Error("Erro ao assinar documento");

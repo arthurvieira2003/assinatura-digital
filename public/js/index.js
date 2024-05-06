@@ -26,7 +26,7 @@ document.getElementById("registerButton").addEventListener("click", (e) => {
   const senha = document.getElementById("registerSenha").value;
   const tipoacesso = document.getElementById("registerTipoacesso").value;
 
-  fetch("https://assinatura-digital-sage.vercel.app/register", {
+  fetch("http://localhost:3000/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -50,7 +50,7 @@ document.getElementById("loginButton").addEventListener("click", (e) => {
   const nickname = document.getElementById("loginNickname").value;
   const senha = document.getElementById("loginSenha").value;
 
-  fetch("https://assinatura-digital-sage.vercel.app/login", {
+  fetch("http://localhost:3000/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
