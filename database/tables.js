@@ -25,10 +25,6 @@ const Funcionario = database.define("funcionario", {
     type: Sequelize.STRING(100),
     allowNull: false,
   },
-  chaveassinatura: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
 });
 
 // Definir modelo Relatorio usando Sequelize

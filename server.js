@@ -1,10 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const sequelize = require("./database/db");
-const { Sequelize, DataTypes } = require("sequelize");
 const cors = require("cors");
 const path = require("path");
-const { Funcionario, Relatorio, Assinatura } = require("./database/tables");
+const { Funcionario, Relatorio } = require("./database/tables");
+const { PDFDocument, StandardFonts } = require("pdf-lib");
+const base64ToUint8Array = require("base64-to-uint8array");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -185,8 +186,10 @@ app.post("/documentos/assinar/:idDocumento", async (req, res) => {
   const idDocumento = req.params.idDocumento;
 
   try {
-    // Aqui você fará a lógica para encontrar o documento no banco de dados por ID
-    const documento = await Documento.findByPk(idDocumento);
+    // Lógica para encontrar o documento no banco de dados por ID usando Sequelize
+    const documento = await Relatorio.findByPk(idDocumento, {
+      include: { model: Funcionario, attributes: ["email", "nickname"] },
+    });
 
     if (!documento) {
       return res.status(404).json({ message: "Documento não encontrado" });
@@ -197,13 +200,69 @@ app.post("/documentos/assinar/:idDocumento", async (req, res) => {
       ...documento.toJSON(),
       assinado: true,
       dataAssinatura: new Date(),
+      assinante: documento.funcionario.dataValues.email,
     };
+
+    // Criar um novo PDF com uma página extra contendo os dados do assinante
+    const pdfDoc = await PDFDocument.load(
+      Buffer.from(documento.arquivo_pdf, "base64")
+    );
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    const page = pdfDoc.addPage();
+    const { width, height } = page.getSize();
+    const fontSize = 12;
+    const text = `Assinado por: ${documentoAssinado.assinante}`;
+
+    page.drawText(text, {
+      x: 50,
+      y: height - 50,
+      font: font,
+      fontSize: fontSize,
+    });
+
+    // Salvar o PDF modificado de volta como base64
+    const modifiedPdfBase64 = await pdfDoc.saveAsBase64();
+
+    // Atualizar o documento no banco de dados com o PDF modificado
+    await Relatorio.update(
+      { arquivo_pdf: modifiedPdfBase64, status: "Assinado" },
+      { where: { id: idDocumento } }
+    );
 
     // Retorne o documento assinado como resposta
     return res.status(200).json(documentoAssinado);
   } catch (error) {
     console.error("Erro ao assinar documento:", error);
     return res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
+app.get("/documentos/pdf/:id", async (req, res) => {
+  const idDocumento = req.params.id;
+
+  try {
+    // Busque o documento no banco de dados pelo ID
+    const documento = await Relatorio.findByPk(idDocumento);
+
+    if (!documento) {
+      return res.status(404).json({ message: "Documento não encontrado" });
+    }
+
+    // Simule a busca do conteúdo PDF em base64 no banco de dados
+    const base64String = documento.arquivo_pdf;
+
+    // Converte a string base64 para Buffer
+    const pdfBuffer = Buffer.from(base64String, "base64");
+
+    // Definir o tipo de conteúdo para application/pdf
+    res.contentType("application/pdf");
+
+    // Enviar o buffer como resposta
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Erro ao converter PDF:", error);
+    res.status(500).json({ error: "Erro ao converter PDF" });
   }
 });
 

@@ -36,10 +36,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const arquivoInput = document.querySelector('input[type="file"]');
     const arquivo = arquivoInput.files[0];
 
-    // Ler o conteúdo do arquivo PDF como base64
+    // Ler o conteúdo do arquivo PDF como array buffer
     const reader = new FileReader();
     reader.onload = async (event) => {
-      const arquivo_pdf = event.target.result;
+      const arrayBuffer = event.target.result;
+
+      // Converter o array buffer em base64
+      const arquivo_pdf = arrayBufferToBase64(arrayBuffer);
 
       const descricao = document.getElementById("descricao").value;
       const valor = document.getElementById("valor").value;
@@ -72,16 +75,29 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${newDocumento.destinatario}</td>
           <td>${newDocumento.status}</td>
         `;
+
+        window.location.reload();
       } catch (error) {
         console.error("Erro ao enviar documento:", error);
       }
     };
 
-    // Ler o arquivo PDF selecionado como base64
+    // Ler o arquivo PDF selecionado como array buffer
     if (arquivo) {
-      reader.readAsDataURL(arquivo);
+      reader.readAsArrayBuffer(arquivo);
     }
   });
+
+  // Função para converter array buffer em base64
+  function arrayBufferToBase64(buffer) {
+    let binary = "";
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
 
   // Carregar documentos na tabela
   fetch("http://localhost:3000/documentos")
@@ -104,15 +120,70 @@ document.addEventListener("DOMContentLoaded", () => {
         const assinarButton = document.createElement("button");
         assinarButton.textContent = "Assinar Documento";
 
-        // Adicionar evento de clique ao botão
-        assinarButton.addEventListener("click", () => {
-          // Lógica para assinar o documento aqui
-          console.log(`Assinar documento ID: ${documento.id}`);
-          // Aqui você pode chamar uma função para assinar o documento, por exemplo
+        const downloadButton = document.createElement("button");
+        downloadButton.textContent = "Visualizar Documento";
+
+        downloadButton.addEventListener("click", async () => {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/documentos/pdf/${documento.id}`
+            );
+            if (!response.ok) {
+              throw new Error("Erro ao baixar PDF");
+            }
+            const data = await response.blob();
+            const blobUrl = URL.createObjectURL(data);
+
+            // Abrir o PDF em uma nova aba para visualização
+            window.open(blobUrl);
+          } catch (error) {
+            console.error("Erro ao baixar PDF:", error);
+            // Tratar o erro ou exibir uma mensagem de erro ao usuário
+          }
         });
 
-        // Adicionar o botão à célula da tabela
-        buttonCell.appendChild(assinarButton);
+        buttonCell.appendChild(downloadButton);
+
+        if (documento.status !== "Assinado") {
+          const assinarButton = document.createElement("button");
+          assinarButton.textContent = "Assinar Documento";
+
+          const userId = Number(localStorage.getItem("userId"));
+
+          if (userId !== documento.funcionario_id) {
+            assinarButton.disabled = true;
+            assinarButton.title =
+              "Você não tem permissão para assinar este documento";
+          }
+
+          // Adicionar evento de clique ao botão
+          assinarButton.addEventListener("click", () => {
+            fetch(`http://localhost:3000/documentos/assinar/${documento.id}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Erro ao assinar documento");
+                }
+                return response.json();
+              })
+              .then((data) => {
+                window.location.reload();
+                console.log("Documento assinado com sucesso:", data);
+                // Aqui você pode atualizar a interface ou fazer outras ações após assinar o documento
+              })
+              .catch((error) => {
+                console.error("Erro ao assinar documento:", error);
+                // Tratar o erro ou exibir uma mensagem de erro ao usuário
+              });
+          });
+
+          // Adicionar o botão à célula da tabela
+          buttonCell.appendChild(assinarButton);
+        }
       });
     })
     .catch((error) => {
@@ -120,25 +191,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-function assinarDocumento(idDocumento) {
-  fetch(`http://localhost:3000/documentos/assinar/${idDocumento}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Erro ao assinar documento");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Documento assinado com sucesso:", data);
-      // Aqui você pode atualizar a interface ou fazer outras ações após assinar o documento
-    })
-    .catch((error) => {
-      console.error("Erro ao assinar documento:", error);
-      // Tratar o erro ou exibir uma mensagem de erro ao usuário
-    });
-}
+document.getElementById("logoutButton").addEventListener("click", () => {
+  // Limpar o ID do usuário do localStorage
+  localStorage.removeItem("userId");
+
+  // Redirecionar o usuário para a página de login
+  window.location.href = "../index.html";
+});
